@@ -14,7 +14,7 @@ export interface BlockItem {
   icon?: React.ReactNode;
 }
 
-const blockItems: BlockItem[] = [
+export const blockItems: BlockItem[] = [
   {
     id: 'file',
     name: 'File',

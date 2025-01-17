@@ -40,7 +40,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import TurboNode, { TurboNodeData } from './components/TurboNode';
 import TurboEdge from './components/TurboEdge';
 import Toolbar from './components/Toolbar';
-import BlockLibrary, { BlockItem } from './components/BlockLibrary';
+import BlockLibrary, { BlockItem, blockItems } from './components/BlockLibrary';
 
 const initialNodes: Node<TurboNodeData>[] = [];
 const initialEdges: Edge[] = [];
@@ -137,6 +137,19 @@ function App() {
 
       if (targetNode.data.title.toLowerCase().includes('input')) {
         setLogs(prev => [...prev, 'Error: Input nodes cannot have incoming connections']);
+        return;
+      }
+
+      // Check data type compatibility
+      const sourceTypes = sourceNode.data.outputTypes || [];
+      const targetTypes = targetNode.data.inputTypes || [];
+      
+      const hasCompatibleType = sourceTypes.some(type =>
+        targetTypes.includes(type)
+      );
+
+      if (!hasCompatibleType) {
+        setLogs(prev => [...prev, `Error: Incompatible data types - ${sourceNode.data.title} outputs [${sourceTypes.join(', ')}] but ${targetNode.data.title} accepts [${targetTypes.join(', ')}]`]);
         return;
       }
 
@@ -310,21 +323,50 @@ function App() {
         <OutputPanel output={output} logs={logs} />
         <div className="absolute bottom-0 left-0 right-0 p-4 bg-gray-900">
           <CommandInput onCommand={(cmd: string) => {
-            if (cmd === 'help') {
-              setLogs(prev => [...prev, 'Available commands: help, clear, add, remove, layout']);
-            } else if (cmd === 'clear') {
+            const args = cmd.split(' ');
+            const command = args[0];
+
+            if (command === 'help') {
+              setLogs(prev => [...prev, 
+                'Available commands:',
+                '  help - Show this help message',
+                '  clear - Clear output and logs',
+                '  add - Add new node',
+                '  remove - Remove selected node',
+                '  layout - Apply auto-layout',
+                '  list blocks - Show available block types',
+                '  node config <id> - Configure node by ID'
+              ]);
+            } else if (command === 'clear') {
               setOutput([]);
               setLogs(['Cleared output and logs']);
-            } else if (cmd === 'add') {
+            } else if (command === 'add') {
               addNewNode();
               setLogs(prev => [...prev, 'Added new node']);
-            } else if (cmd === 'remove' && selectedNode) {
+            } else if (command === 'remove' && selectedNode) {
               setNodes(nds => nds.filter(n => n.id !== selectedNode.id));
               setSelectedNode(null);
               setLogs(prev => [...prev, 'Removed selected node']);
-            } else if (cmd === 'layout') {
+            } else if (command === 'layout') {
               onLayout();
               setLogs(prev => [...prev, 'Applied auto-layout']);
+            } else if (command === 'list' && args[1] === 'blocks') {
+              const categories = Array.from(new Set(blockItems.map((block: BlockItem) => block.category)));
+              setLogs(prev => [
+                ...prev,
+                'Available block types:',
+                ...categories.map((category: string) => `\n${category.toUpperCase()}:`),
+                ...blockItems.map((block: BlockItem) => `  ${block.name} - ${block.description}`)
+              ]);
+            } else if (command === 'node' && args[1] === 'config' && args[2]) {
+              const nodeId = args[2];
+              const node = nodes.find(n => n.id === nodeId);
+              if (node) {
+                setSelectedNode(node);
+                setLogs(prev => [...prev, `Opened configuration for node ${nodeId}`]);
+              } else {
+                setLogs(prev => [...prev, `Error: Node ${nodeId} not found`]);
+              }
             } else {
               setOutput(prev => [...prev, `Output: ${cmd}`]);
               setLogs(prev => [...prev, `Unknown command: ${cmd}`]);
