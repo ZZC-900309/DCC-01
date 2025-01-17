@@ -174,4 +174,3 @@ React Flow and Svelte Flow are maintained by the team behind [xyflow](https://xy
 ## License
 
 React Flow and Svelte Flow are [MIT licensed](./LICENSE).
->>>>>>> origin/main
