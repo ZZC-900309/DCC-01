@@ -2,12 +2,24 @@ import React from 'react';
 import { Handle, Position } from '@xyflow/react';
 import styles from './TurboNode.module.styl';
 
+export interface NodeConfigData {
+  filterColumns?: string[];
+  mergeKeys?: string[];
+  chartType?: 'bar' | 'line' | 'pie';
+  chartOptions?: {
+    xAxis?: string;
+    yAxis?: string;
+    groupBy?: string;
+  };
+}
+
 export interface TurboNodeData extends Record<string, unknown> {
   title: string;
   subline?: string;
   icon?: React.ReactNode;
   inputTypes?: string[];
   outputTypes?: string[];
+  config?: NodeConfigData;
 }
 
 function TurboNode({ data }: { data: TurboNodeData }) {
