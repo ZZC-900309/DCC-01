@@ -20,6 +20,12 @@ import { Settings, Database, ArrowDownToLine, ArrowUpFromLine, Cpu } from 'lucid
 import { Button } from './components/ui/button';
 import { Card } from './components/ui/card';
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "./components/ui/dialog";
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -34,6 +40,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import TurboNode, { TurboNodeData } from './components/TurboNode';
 import TurboEdge from './components/TurboEdge';
 import Toolbar from './components/Toolbar';
+import BlockLibrary, { BlockItem } from './components/BlockLibrary';
 
 const initialNodes: Node<TurboNodeData>[] = [];
 const initialEdges: Edge[] = [];
@@ -54,6 +61,7 @@ const defaultEdgeOptions = {
 function App() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [showBlockLibrary, setShowBlockLibrary] = useState(false);
   const [selectedNodeType, setSelectedNodeType] = useState('default');
   const [selectedNode, setSelectedNode] = useState<Node<TurboNodeData> | null>(null);
   const [nodeToDelete, setNodeToDelete] = useState<Node<TurboNodeData> | null>(null);
@@ -161,19 +169,26 @@ function App() {
     }
   };
 
-  const addNewNode = useCallback(() => {
+  const addNewNode = useCallback((block?: BlockItem) => {
     const position = screenToFlowPosition({ x: 100, y: 100 });
     const newNode: Node<TurboNodeData> = {
       id: `node-${nodes.length + 1}`,
       type: 'turbo',
       position,
-      data: { 
+      data: block ? {
+        title: block.name,
+        subline: block.description,
+        icon: getNodeIcon(block.category),
+        inputTypes: block.inputTypes,
+        outputTypes: block.outputTypes,
+      } : {
         title: selectedNodeType.charAt(0).toUpperCase() + selectedNodeType.slice(1),
         subline: `Block ${nodes.length + 1}`,
         icon: getNodeIcon(selectedNodeType),
       },
     };
     setNodes((nds) => [...nds, newNode]);
+    setShowBlockLibrary(false);
   }, [nodes.length, setNodes, selectedNodeType, screenToFlowPosition]);
 
   const onLayout = useCallback(() => {
@@ -191,7 +206,7 @@ function App() {
     <ErrorBoundary>
       <div className="w-screen h-screen bg-gray-900">
         <Toolbar 
-          onAddNode={addNewNode}
+          onAddNode={() => setShowBlockLibrary(true)}
           onLayout={onLayout}
           onNodeTypeChange={setSelectedNodeType}
         />
@@ -284,6 +299,14 @@ function App() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+        <Dialog open={showBlockLibrary} onOpenChange={setShowBlockLibrary}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Block</DialogTitle>
+            </DialogHeader>
+            <BlockLibrary onAddBlock={addNewNode} onClose={() => setShowBlockLibrary(false)} />
+          </DialogContent>
+        </Dialog>
         <OutputPanel output={output} logs={logs} />
         <div className="absolute bottom-0 left-0 right-0 p-4 bg-gray-900">
           <CommandInput onCommand={(cmd: string) => {

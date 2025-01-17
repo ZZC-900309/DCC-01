@@ -2,9 +2,10 @@
 import { Button } from './ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Plus, Layout } from 'lucide-react';
+import type { BlockItem } from '../components/BlockLibrary';
 
 interface ToolbarProps {
-  onAddNode: () => void;
+  onAddNode: (block?: BlockItem) => void;
   onLayout: () => void;
   onNodeTypeChange: (type: string) => void;
 }
@@ -32,7 +33,7 @@ function Toolbar({ onAddNode, onLayout, onNodeTypeChange }: ToolbarProps) {
         </SelectContent>
       </Select>
       
-      <Button onClick={onAddNode} className="flex items-center gap-2">
+      <Button onClick={() => onAddNode()} className="flex items-center gap-2">
         <Plus className="w-4 h-4" />
         Add Block
       </Button>

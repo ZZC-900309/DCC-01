@@ -6,6 +6,8 @@ export interface TurboNodeData extends Record<string, unknown> {
   title: string;
   subline?: string;
   icon?: React.ReactNode;
+  inputTypes?: string[];
+  outputTypes?: string[];
 }
 
 function TurboNode({ data }: { data: TurboNodeData }) {
