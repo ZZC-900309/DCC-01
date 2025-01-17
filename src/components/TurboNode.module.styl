@@ -1,0 +1,35 @@
+.turboNode
+  transition: all 0.2s ease
+  border-radius: 8px
+  position: relative
+  background: rgba(22, 27, 34, 0.85)
+  backdrop-filter: blur(12px)
+  
+  &:before
+    content: ''
+    position: absolute
+    inset: -1px
+    padding: 1px
+    border-radius: 9px
+    background: linear-gradient(45deg, #ae53ba, #2a8af6)
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)
+    mask-composite: exclude
+    opacity: 0.5
+    transition: opacity 0.2s ease
+
+  &:hover
+    transform: translateY(-1px) scale(1.02)
+    
+    &:before
+      opacity: 1
+
+.handle
+  width: 8px
+  height: 8px
+  background: linear-gradient(45deg, #ae53ba, #2a8af6)
+  border-radius: 50%
+  transition: all 0.2s ease
+
+  &:hover
+    width: 10px
+    height: 10px
